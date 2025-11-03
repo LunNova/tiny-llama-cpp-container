@@ -1,5 +1,5 @@
 #!/usr/bin/env nix-shell
-#!nix-shell -i bash -p dive docker jq gawk gnused coreutils
+#!nix-shell -i bash -p docker jq gawk gnused coreutils
 
 set -euo pipefail
 
