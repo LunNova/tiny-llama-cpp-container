@@ -3,33 +3,35 @@
 [1m╚════════════════════════════════════════════════════════════════════════════╝[0m
 
 [0;34mImage:[0m llama.cpp:server-rocm
-[0;34mTotal Size:[0m 16.7GB (17900211380 bytes)
+[0;34mTotal Size:[0m 17.9GB (17900211380 bytes)
 
 [1m[0;32m═══ LAYER BREAKDOWN ═══[0m
 
 [1;33mSIZE       %      CREATED BY[0m
-17.2GB     103.2% RUN |3 ROCM_VERSION=7.0 AMDGPU_VERSION=7.0 A…
-640MB      3.7%   COPY /app/lib/ /app # buildkit
-78.1MB     0.5%   ADD file:dafefa97de6dc66a6…
+17.2GB     96.1%  RUN |3 ROCM_VERSION=7.0 AMDGPU_VERSION=7.0 APT_PREF=Package: *\nPin: release o=repo.radeon.com\nPin…
+640MB      3.6%   COPY /app/lib/ /app # buildkit
+78.1MB     0.4%   ADD file:dafefa97de6dc66a6734ec6f05e58125ce01225cccce3f50662330c252aad518 in / 
 4.44MB     0.0%   COPY /app/full/llama-server /app # buildkit
-60B        0.0%   RUN |3 ROCM_VERSION=7.0 AMDGPU_VERSION=7.0 A…
+15.4kB     0.0%   RUN apt-get update     && apt-get install -y libgomp1 curl    && apt autoremove -y     && apt clean…
+1.89kB     0.0%   RUN |3 ROCM_VERSION=7.0 AMDGPU_VERSION=7.0 APT_PREF=Package: *\nPin: release o=repo.radeon.com\nPin…
+60B        0.0%   RUN |3 ROCM_VERSION=7.0 AMDGPU_VERSION=7.0 APT_PREF=Package: *\nPin: release o=repo.radeon.com\nPin…
 
 [1m[0;32m═══ DIRECTORY BREAKDOWN ═══[0m
 
 [1;33mAnalyzing filesystem... (this may take a moment for large images)[0m
 
 [1;33mSIZE       PATH[0m
-615.0MB    /app
-15.3GB     /opt
-15.3GB     /opt/rocm-7.0.0
-255.8MB    /opt/rocm-7.0.0/bin
-14.1GB     /opt/rocm-7.0.0/lib
-3.7GB      /opt/rocm-7.0.0/lib/hipblaslt
-2.2GB      /opt/rocm-7.0.0/lib/llvm
-618.7MB    /opt/rocm-7.0.0/lib/rocblas
-1.5GB      /opt/rocm-7.0.0/lib/rocfft
-852.3MB    /opt/rocm-7.0.0/share
-807.2MB    /opt/rocm-7.0.0/share/miopen
-795.7MB    /usr
-548.6MB    /usr/lib
-425.2MB    /usr/lib/x86_64-linux-gnu
+644.9MB    /app
+16.4GB     /opt
+16.4GB     /opt/rocm-7.0.0
+268.2MB    /opt/rocm-7.0.0/bin
+15.2GB     /opt/rocm-7.0.0/lib
+4.0GB      /opt/rocm-7.0.0/lib/hipblaslt
+2.3GB      /opt/rocm-7.0.0/lib/llvm
+648.7MB    /opt/rocm-7.0.0/lib/rocblas
+1.6GB      /opt/rocm-7.0.0/lib/rocfft
+893.7MB    /opt/rocm-7.0.0/share
+846.5MB    /opt/rocm-7.0.0/share/miopen
+834.3MB    /usr
+575.2MB    /usr/lib
+445.9MB    /usr/lib/x86_64-linux-gnu

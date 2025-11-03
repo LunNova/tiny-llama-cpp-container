@@ -20,14 +20,15 @@ usage() {
 
 human_readable() {
 	local bytes=$1
-	if [ "$bytes" -lt 1024 ]; then
+	# Use decimal units (1000-based) to match docker images output
+	if [ "$bytes" -lt 1000 ]; then
 		echo "${bytes}B"
-	elif [ "$bytes" -lt 1048576 ]; then
-		echo "$(awk "BEGIN {printf \"%.1f\", $bytes/1024}")KB"
-	elif [ "$bytes" -lt 1073741824 ]; then
-		echo "$(awk "BEGIN {printf \"%.1f\", $bytes/1048576}")MB"
+	elif [ "$bytes" -lt 1000000 ]; then
+		echo "$(awk "BEGIN {printf \"%.1f\", $bytes/1000}")kB"
+	elif [ "$bytes" -lt 1000000000 ]; then
+		echo "$(awk "BEGIN {printf \"%.1f\", $bytes/1000000}")MB"
 	else
-		echo "$(awk "BEGIN {printf \"%.1f\", $bytes/1073741824}")GB"
+		echo "$(awk "BEGIN {printf \"%.1f\", $bytes/1000000000}")GB"
 	fi
 }
 
@@ -73,16 +74,16 @@ while IFS= read -r line; do
 	size_str=$(echo "$line" | jq -r '.Size')
 	created_by=$(echo "$line" | jq -r '.CreatedBy' | sed 's/\/bin\/sh -c #(nop) //g' | sed 's/\/bin\/sh -c //g')
 
-	# Parse size to bytes
+	# Parse size to bytes (docker uses decimal units: 1000-based)
 	size_bytes=0
-	if [[ "$size_str" =~ ([0-9.]+)([A-Z]+) ]]; then
+	if [[ "$size_str" =~ ([0-9.]+)([kMG]?B) ]]; then
 		num="${BASH_REMATCH[1]}"
 		unit="${BASH_REMATCH[2]}"
 		case "$unit" in
 		B) size_bytes=$(awk "BEGIN {printf \"%.0f\", $num}") ;;
-		KB) size_bytes=$(awk "BEGIN {printf \"%.0f\", $num*1024}") ;;
-		MB) size_bytes=$(awk "BEGIN {printf \"%.0f\", $num*1048576}") ;;
-		GB) size_bytes=$(awk "BEGIN {printf \"%.0f\", $num*1073741824}") ;;
+		kB) size_bytes=$(awk "BEGIN {printf \"%.0f\", $num*1000}") ;;
+		MB) size_bytes=$(awk "BEGIN {printf \"%.0f\", $num*1000000}") ;;
+		GB) size_bytes=$(awk "BEGIN {printf \"%.0f\", $num*1000000000}") ;;
 		esac
 	fi
 
@@ -90,7 +91,7 @@ while IFS= read -r line; do
 	layer_sizes+=("$size_str")
 	layer_commands+=("$created_by")
 	layer_num=$((layer_num + 1))
-done < <(docker history "$IMAGE" --format='{{json .}}')
+done < <(docker history "$IMAGE" --format='{{json .}}' --no-trunc)
 
 # Sort by size and display top layers
 indices=($(for i in "${!layer_size_bytes[@]}"; do echo "$i ${layer_size_bytes[$i]}"; done | sort -k2 -rn | cut -d' ' -f1))
@@ -104,8 +105,8 @@ for idx in "${indices[@]}"; do
 		percent=$(awk "BEGIN {printf \"%.1f\", ($size_bytes/$TOTAL_SIZE)*100}")
 
 		# Truncate command if too long
-		if [ ${#command} -gt 65 ]; then
-			command="${command:0:62}..."
+		if [ ${#command} -gt 100 ]; then
+			command="${command:0:99}…"
 		fi
 
 		printf "%-10s %-6s %s\n" "$size_human" "$percent%" "$command"
@@ -136,7 +137,7 @@ echo -e "${YELLOW}SIZE       PATH${NC}"
 
 # Use tar to list and calculate sizes without full extraction
 docker export "$CONTAINER_ID" | tar -tvf - 2>/dev/null | awk '
-BEGIN { min_size = 104857600 }  # 100 MiB in bytes
+BEGIN { min_size = 100000000 }  # 100 MB in bytes
 {
     # Field 3 is size, field 6 is path
     size = $3
