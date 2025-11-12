@@ -1,7 +1,3 @@
-[1m╔════════════════════════════════════════════════════════════════════════════╗[0m
-[1m║           DOCKER IMAGE SIZE ANALYSIS                                       ║[0m
-[1m╚════════════════════════════════════════════════════════════════════════════╝[0m
-
 [0;34mImage:[0m llama.cpp:server-rocm
 [0;34mTotal Size:[0m 17.9GB (17900211380 bytes)
 
@@ -23,15 +19,29 @@
 [1;33mSIZE       PATH[0m
 644.9MB    /app
 16.4GB     /opt
-16.4GB     /opt/rocm-7.0.0
-268.2MB    /opt/rocm-7.0.0/bin
-15.2GB     /opt/rocm-7.0.0/lib
-4.0GB      /opt/rocm-7.0.0/lib/hipblaslt
-2.3GB      /opt/rocm-7.0.0/lib/llvm
-648.7MB    /opt/rocm-7.0.0/lib/rocblas
-1.6GB      /opt/rocm-7.0.0/lib/rocfft
-893.7MB    /opt/rocm-7.0.0/share
-846.5MB    /opt/rocm-7.0.0/share/miopen
+ 16.4GB     /opt/rocm-7.0.0
+  268.2MB    /opt/rocm-7.0.0/bin
+  15.2GB     /opt/rocm-7.0.0/lib
+   4.0GB      /opt/rocm-7.0.0/lib/hipblaslt
+   2.3GB      /opt/rocm-7.0.0/lib/llvm
+   648.7MB    /opt/rocm-7.0.0/lib/rocblas
+   1.6GB      /opt/rocm-7.0.0/lib/rocfft
+  893.7MB    /opt/rocm-7.0.0/share
+   846.5MB    /opt/rocm-7.0.0/share/miopen
 834.3MB    /usr
-575.2MB    /usr/lib
-445.9MB    /usr/lib/x86_64-linux-gnu
+ 575.2MB    /usr/lib
+  445.9MB    /usr/lib/x86_64-linux-gnu
+
+[1m[0;32m═══ TOP 10 LARGEST FILES ═══[0m
+
+[1;33mSIZE       PATH[0m
+1.6GB      /opt/rocm-7.0.0/lib/rocfft/rocfft_kernel_cache.db
+1.4GB      /opt/rocm-7.0.0/lib/libdevice_gemm_operations.a
+1.2GB      /opt/rocm-7.0.0/lib/libdevice_conv_operations.a
+915.0MB    /opt/rocm-7.0.0/lib/libMIOpen.so.1.0.70000
+670.5MB    /opt/rocm-7.0.0/lib/librocsolver.so.0.6.70000
+628.6MB    /app/libggml-hip.so
+349.2MB    /opt/rocm-7.0.0/lib/libdevice_reduction_operations.a
+343.8MB    /opt/rocm-7.0.0/lib/librocsparse.so.1.0.70000
+328.9MB    /opt/rocm-7.0.0/lib/librccl.so.1.0.70000
+266.8MB    /opt/rocm-7.0.0/lib/librocrand.so.1.1.70000

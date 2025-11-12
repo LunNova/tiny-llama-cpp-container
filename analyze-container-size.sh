@@ -38,16 +38,10 @@ fi
 
 IMAGE="$1"
 
-# Check if image exists
 if ! docker image inspect "$IMAGE" &>/dev/null; then
 	echo -e "${RED}Error: Image '$IMAGE' not found${NC}"
 	exit 1
 fi
-
-echo -e "${BOLD}╔════════════════════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BOLD}║           DOCKER IMAGE SIZE ANALYSIS                                       ║${NC}"
-echo -e "${BOLD}╚════════════════════════════════════════════════════════════════════════════╝${NC}"
-echo
 
 # Get total image size
 TOTAL_SIZE=$(docker image inspect "$IMAGE" --format='{{.Size}}')
@@ -57,11 +51,9 @@ echo -e "${BLUE}Image:${NC} $IMAGE"
 echo -e "${BLUE}Total Size:${NC} $TOTAL_SIZE_HUMAN ($TOTAL_SIZE bytes)"
 echo
 
-# Layer breakdown
 echo -e "${BOLD}${GREEN}═══ LAYER BREAKDOWN ═══${NC}"
 echo
 
-# Get docker history and parse it
 echo -e "${YELLOW}SIZE       %      CREATED BY${NC}"
 
 # Process layers directly from docker history, sort by size (largest first)
@@ -126,7 +118,6 @@ echo
 echo -e "${BOLD}${GREEN}═══ DIRECTORY BREAKDOWN ═══${NC}"
 echo
 
-# For large images, container export is slow. Let's use a smarter approach.
 echo -e "${YELLOW}Analyzing filesystem... (this may take a moment for large images)${NC}"
 echo
 
@@ -214,15 +205,64 @@ END {
         # Count depth by counting slashes (subtract 1 for leading /)
         depth = gsub(/\//, "/", path) - 1
 
-        # Print with indentation
-        indent = ""
-        for (j = 0; j < depth; j++) {
-            indent = indent "  "
-        }
-
-        print size, indent path
+        # Output depth, size, and path separately
+        print depth "|" size "|" path
     }
-}' | while read -r size path; do
+}' | while IFS='|' read -r depth size path; do
+	size_human=$(human_readable "$size")
+	# Generate indent based on depth
+	indent=""
+	for ((i=0; i<depth; i++)); do
+		indent="$indent "
+	done
+	printf "%s%-10s %s\n" "$indent" "$size_human" "$path"
+done
+
+echo
+echo -e "${BOLD}${GREEN}═══ TOP 10 LARGEST FILES ═══${NC}"
+echo
+echo -e "${YELLOW}SIZE       PATH${NC}"
+
+docker export "$CONTAINER_ID" | tar -tvf - 2>/dev/null | awk '
+{
+    # Field 1 is permissions, field 3 is size, field 6 is path
+    # Regular files start with "-" in permissions
+    if ($1 ~ /^-/) {
+        size = $3
+        path = $6
+        files[path] = size
+    }
+}
+END {
+    # Sort files by size
+    n = 0
+    for (path in files) {
+        sizes[n] = files[path]
+        paths[n] = path
+        n++
+    }
+
+    # Simple bubble sort to get top 10
+    for (i = 0; i < n && i < 10; i++) {
+        max_idx = i
+        for (j = i + 1; j < n; j++) {
+            if (sizes[j] > sizes[max_idx]) {
+                max_idx = j
+            }
+        }
+        # Swap
+        if (max_idx != i) {
+            tmp_size = sizes[i]
+            tmp_path = paths[i]
+            sizes[i] = sizes[max_idx]
+            paths[i] = paths[max_idx]
+            sizes[max_idx] = tmp_size
+            paths[max_idx] = tmp_path
+        }
+        # Output top 10
+        print sizes[i] "|/" paths[i]
+    }
+}' | while IFS='|' read -r size path; do
 	size_human=$(human_readable "$size")
 	printf "%-10s %s\n" "$size_human" "$path"
 done
